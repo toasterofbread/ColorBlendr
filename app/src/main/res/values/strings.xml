@@ -170,4 +170,8 @@
     <string name="custom_tertiary_color_desc">Select pure white color to disable</string>
     <string name="mode_specific_theme_title">Mode-specific theme</string>
     <string name="mode_specific_theme_desc">Apply different saturation and lightness for light and dark modes</string>
+    <string name="allow_external_access_title">Allow external access</string>
+    <string name="allow_external_access_desc">Other apps will be able to configure this app</string>
+    <string name="external_overlay_timeout_title">External color overlay timeout (seconds)</string>
+    <string name="external_overlay_timeout_desc">If the timeout is exceeded, color overlays set by external apps will be cleared (0 for no timeout)</string>
 </resources>

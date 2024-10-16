@@ -7,13 +7,18 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.Fragment
 import com.drdisagree.colorblendr.R
 import com.drdisagree.colorblendr.common.Const
+import com.drdisagree.colorblendr.common.Const.ALLOW_EXTERNAL_ACCESS
 import com.drdisagree.colorblendr.common.Const.MODE_SPECIFIC_THEMES
+import com.drdisagree.colorblendr.common.Const.MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS
 import com.drdisagree.colorblendr.common.Const.MONET_LAST_UPDATED
 import com.drdisagree.colorblendr.common.Const.MONET_SECONDARY_COLOR
 import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_ENABLED
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY
 import com.drdisagree.colorblendr.common.Const.MONET_TERTIARY_COLOR
 import com.drdisagree.colorblendr.common.Const.workingMethod
 import com.drdisagree.colorblendr.config.RPrefs.getBoolean
@@ -99,6 +104,34 @@ class SettingsAdvancedFragment : Fragment() {
         binding.modeSpecificThemes.setSwitchChangeListener { _: CompoundButton?, isChecked: Boolean ->
             putBoolean(MODE_SPECIFIC_THEMES, isChecked)
             applyFabricatedColors()
+        }
+
+        binding.allowExternalAccess.isSwitchChecked = getBoolean(ALLOW_EXTERNAL_ACCESS, false)
+        binding.allowExternalAccess.setSwitchChangeListener { _: CompoundButton?, isChecked: Boolean ->
+            putBoolean(ALLOW_EXTERNAL_ACCESS, isChecked)
+        }
+
+        binding.externalOverlayTimeout.seekbarProgress = getInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS, 10)
+        binding.externalOverlayTimeout.setOnSeekbarChangeListener(
+            object : OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    binding.externalOverlayTimeout.setSelectedProgress()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    putInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS, seekBar.progress)
+                }
+            }
+        )
+        binding.externalOverlayTimeout.setResetClickListener {
+            putInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS, 10)
+            true
         }
 
         return binding.getRoot()

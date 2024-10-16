@@ -4,7 +4,10 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED
 import com.drdisagree.colorblendr.common.Const.MONET_STYLE_ORIGINAL_NAME
+import com.drdisagree.colorblendr.config.RPrefs
 import com.drdisagree.colorblendr.config.RPrefs.getInt
 import com.drdisagree.colorblendr.config.RPrefs.getString
 import com.drdisagree.colorblendr.utils.ColorUtil.intToHexColorNoHash
@@ -23,6 +26,12 @@ object ThemeOverlayPackage {
     val themeCustomizationOverlayPackages: JSONObject
         get() {
             return try {
+                val seedKey: String =
+                    if (RPrefs.getBoolean(MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED))
+                        MONET_SEED_COLOR_EXTERNAL_OVERLAY
+                    else
+                        MONET_SEED_COLOR
+
                 JSONObject().apply {
                     putOpt(
                         COLOR_SOURCE,
@@ -39,7 +48,7 @@ object ThemeOverlayPackage {
                         SYSTEM_PALETTE,
                         intToHexColorNoHash(
                             getInt(
-                                MONET_SEED_COLOR,
+                                seedKey,
                                 Color.BLUE
                             )
                         )
@@ -49,7 +58,7 @@ object ThemeOverlayPackage {
                             ACCENT_COLOR,
                             intToHexColorNoHash(
                                 getInt(
-                                    MONET_SEED_COLOR,
+                                    seedKey,
                                     Color.BLUE
                                 )
                             )

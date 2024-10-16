@@ -48,6 +48,30 @@
                 app:summaryText="@string/mode_specific_theme_desc"
                 app:titleText="@string/mode_specific_theme_title" />
 
+            <com.drdisagree.colorblendr.ui.widgets.SwitchWidget
+                android:id="@+id/allow_external_access"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_extension"
+                app:summaryText="@string/allow_external_access_desc"
+                app:titleText="@string/allow_external_access_title" />
+
+            <com.drdisagree.colorblendr.ui.widgets.SeekbarWidget
+                android:id="@+id/external_overlay_timeout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:decimalFormat="#.##"
+                app:isDecimalFormat="false"
+                app:outputScale="100.0"
+                app:progressFormat="s"
+                app:seekbarDefaultProgress="10"
+                app:seekbarMaxProgress="120"
+                app:seekbarMinProgress="0"
+                app:seekbarProgress="100"
+                app:icon="@drawable/ic_timer"
+                app:summaryText="@string/external_overlay_timeout_desc"
+                app:titleText="@string/external_overlay_timeout_title" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

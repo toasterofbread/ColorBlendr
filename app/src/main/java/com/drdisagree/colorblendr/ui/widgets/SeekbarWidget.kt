@@ -1,5 +1,6 @@
 package com.drdisagree.colorblendr.ui.widgets
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
@@ -11,6 +12,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getString
 import com.drdisagree.colorblendr.R
 import com.google.android.material.card.MaterialCardView
 import java.text.DecimalFormat
@@ -21,6 +23,7 @@ class SeekbarWidget : RelativeLayout {
     private var container: MaterialCardView? = null
     private var titleTextView: TextView? = null
     private var summaryTextView: TextView? = null
+    private var summaryText: String? = null
     private var seekBar: SeekBar? = null
     private var resetIcon: ImageView? = null
     private var valueFormat: String? = null
@@ -56,6 +59,7 @@ class SeekbarWidget : RelativeLayout {
         defaultValue =
             typedArray.getInt(R.styleable.SeekbarWidget_seekbarDefaultProgress, Int.MAX_VALUE)
         setTitle(typedArray.getString(R.styleable.SeekbarWidget_titleText))
+        summaryText = typedArray.getString(R.styleable.SeekbarWidget_summaryText)
         setSeekbarMinProgress(typedArray.getInt(R.styleable.SeekbarWidget_seekbarMinProgress, 0))
         setSeekbarMaxProgress(typedArray.getInt(R.styleable.SeekbarWidget_seekbarMaxProgress, 100))
         seekbarProgress = typedArray.getInt(
@@ -89,25 +93,29 @@ class SeekbarWidget : RelativeLayout {
         titleTextView!!.text = title
     }
 
+    @SuppressLint("SetTextI18n")
     fun setSelectedProgress() {
-        summaryTextView!!.text = if (valueFormat!!.isBlank() || valueFormat!!.isEmpty()) {
-            context.getString(
-                R.string.opt_selected1,
-                (if (!isDecimalFormat) (seekBar!!.progress / outputScale).toInt() else DecimalFormat(
-                    decimalFormat
-                )
-                    .format((seekBar!!.progress / outputScale).toDouble())).toString()
-            )
-        } else {
-            context.getString(
-                R.string.opt_selected2,
-                if (!isDecimalFormat) seekBar!!.progress.toString() else DecimalFormat(
-                    decimalFormat
-                )
-                    .format((seekBar!!.progress / outputScale).toDouble()),
-                valueFormat
-            )
-        }
+        summaryTextView!!.text =
+            summaryText?.plus("\n\n").orEmpty() +
+                if (valueFormat!!.isBlank() || valueFormat!!.isEmpty()) {
+                    context.getString(
+                        R.string.opt_selected1,
+                        (if (!isDecimalFormat) (seekBar!!.progress / outputScale).toInt() else DecimalFormat(
+                            decimalFormat
+                        )
+                            .format((seekBar!!.progress / outputScale).toDouble())).toString()
+                    )
+                }
+                else {
+                    context.getString(
+                        R.string.opt_selected2,
+                        if (!isDecimalFormat) seekBar!!.progress.toString() else DecimalFormat(
+                            decimalFormat
+                        )
+                            .format((seekBar!!.progress / outputScale).toDouble()),
+                        valueFormat
+                    )
+                }
     }
 
     var seekbarProgress: Int

@@ -158,4 +158,8 @@
     <string name="custom_tertiary_color_desc">Select pure white color to disable</string>
     <string name="mode_specific_theme_title">Mode-specific theme</string>
     <string name="mode_specific_theme_desc">Apply different saturation and lightness for light and dark modes</string>
+    <string name="allow_external_access_title">外部アクセスを許可する</string>
+    <string name="allow_external_access_desc">他のアプリがこのアプリの設定を行えるようになります</string>
+    <string name="external_overlay_timeout_title">外部カラーオーバレイのタイムアウト（秒）</string>
+    <string name="external_overlay_timeout_desc">タイムアウトを過ぎれば、外部アプリからのカラーオーバレイはクリアされます（０だとタイムアウトなし）</string>
 </resources>

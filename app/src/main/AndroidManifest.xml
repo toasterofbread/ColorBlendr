@@ -80,7 +80,15 @@
         <service
             android:name=".service.AutoStartService"
             android:enabled="true"
-            android:foregroundServiceType="specialUse" />
+            android:foregroundServiceType="specialUse"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.drdisagree.colorblendr.SET_PRIMARY_COLOR" />
+                <action android:name="com.drdisagree.colorblendr.RESET_PRIMARY_COLOR" />
+                <action android:name="com.drdisagree.colorblendr.SERVICE_HEARTBEAT" />
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".service.RestartBroadcastReceiver"

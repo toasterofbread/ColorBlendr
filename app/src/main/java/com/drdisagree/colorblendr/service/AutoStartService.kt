@@ -21,10 +21,22 @@ import com.drdisagree.colorblendr.ColorBlendr.Companion.appContext
 import com.drdisagree.colorblendr.ColorBlendr.Companion.rootConnection
 import com.drdisagree.colorblendr.R
 import com.drdisagree.colorblendr.common.Const
+import com.drdisagree.colorblendr.common.Const.ALLOW_EXTERNAL_ACCESS
+import com.drdisagree.colorblendr.common.Const.MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED
+import com.drdisagree.colorblendr.common.Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER
 import com.drdisagree.colorblendr.common.Const.workingMethod
+import com.drdisagree.colorblendr.config.RPrefs.getBoolean
+import com.drdisagree.colorblendr.config.RPrefs.getInt
+import com.drdisagree.colorblendr.config.RPrefs.getString
+import com.drdisagree.colorblendr.config.RPrefs.putBoolean
+import com.drdisagree.colorblendr.config.RPrefs.putInt
+import com.drdisagree.colorblendr.config.RPrefs.putString
 import com.drdisagree.colorblendr.provider.RootConnectionProvider
 import com.drdisagree.colorblendr.provider.ShizukuConnectionProvider
 import com.drdisagree.colorblendr.utils.ColorUtil.getAccentColor
+import com.drdisagree.colorblendr.utils.OverlayManager
 import com.drdisagree.colorblendr.utils.ShizukuUtil.bindUserService
 import com.drdisagree.colorblendr.utils.ShizukuUtil.getUserServiceArgs
 import com.drdisagree.colorblendr.utils.ShizukuUtil.hasShizukuPermission
@@ -32,12 +44,21 @@ import com.drdisagree.colorblendr.utils.ShizukuUtil.isShizukuAvailable
 import com.drdisagree.colorblendr.utils.SystemUtil.getScreenRotation
 import com.drdisagree.colorblendr.utils.SystemUtil.sensorEventListener
 import com.drdisagree.colorblendr.utils.annotations.TestingOnly
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.time.Duration.Companion.seconds
 
 class AutoStartService : Service() {
 
     private var notificationManager: NotificationManager? = null
+    private val seedOverlayTimeoutCoroutineScope: CoroutineScope = CoroutineScope(Job())
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -57,6 +78,8 @@ class AutoStartService : Service() {
                 this
             )
         }
+
+        putBoolean(MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED, false)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -69,7 +92,75 @@ class AutoStartService : Service() {
             startTimer(this)
         }
 
+        if (getBoolean(ALLOW_EXTERNAL_ACCESS, false)) {
+            val action: String? = intent?.action
+            val actionPrefix: String = "com.drdisagree.colorblendr."
+
+            if (action?.startsWith(actionPrefix) == true) {
+                handleActionIntent(action.drop(actionPrefix.length), intent)
+            }
+        }
+
         return START_STICKY
+    }
+
+    private fun handleActionIntent(action: String, intent: Intent) {
+        val owner: String? = intent.getStringExtra("owner")
+        if (owner.isNullOrBlank()) {
+            return
+        }
+
+        when (action) {
+            "SET_PRIMARY_COLOR" -> {
+                if (!intent.hasExtra("set_color")) {
+                    return
+                }
+
+                val color: Int = intent.getIntExtra("set_color", 0)
+                if (color == getInt(MONET_SEED_COLOR_EXTERNAL_OVERLAY) && getBoolean(MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED)) {
+                    return
+                }
+
+                putString(MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER, owner)
+                putInt(MONET_SEED_COLOR_EXTERNAL_OVERLAY, color)
+                putBoolean(MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED, true)
+
+                GlobalScope.launch {
+                    OverlayManager.applyFabricatedColors(appContext)
+                }
+
+                startSeedOverlayTimeout()
+            }
+            "RESET_PRIMARY_COLOR" -> {
+                OverlayManager.removeFabricatedColors(appContext)
+            }
+            "SERVICE_HEARTBEAT" -> {
+                if (owner == getString(MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER)) {
+                    startSeedOverlayTimeout()
+                }
+            }
+        }
+    }
+
+    private fun startSeedOverlayTimeout() {
+        if (getString(MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER) == null) {
+            return
+        }
+
+        val timeoutSeconds: Int = getInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS)
+        if (timeoutSeconds <= 0) {
+            return
+        }
+
+        seedOverlayTimeoutCoroutineScope.coroutineContext.cancelChildren()
+        seedOverlayTimeoutCoroutineScope.launch {
+            delay(timeoutSeconds.seconds)
+
+            putBoolean(MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED, false)
+            putString(MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER, "")
+
+            OverlayManager.applyFabricatedColors(appContext)
+        }
     }
 
     override fun onDestroy() {
@@ -77,6 +168,8 @@ class AutoStartService : Service() {
 
         isRunning = false
         Log.i(TAG, "onDestroy: Service is destroyed :(")
+
+        seedOverlayTimeoutCoroutineScope.cancel()
 
         try {
             unregisterReceiver(myReceiver)

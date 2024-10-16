@@ -23,6 +23,7 @@ object Const {
     const val MODE_SPECIFIC_THEMES: String = "modeSpecificThemes"
     private val modeSpecificThemes: Boolean
         get() = RPrefs.getBoolean(MODE_SPECIFIC_THEMES, false)
+    const val ALLOW_EXTERNAL_ACCESS: String = "allowExternalAccess"
     val MONET_ACCENT_SATURATION: String
         get() = if (!modeSpecificThemes) {
             "monetAccentSaturationValue"
@@ -45,6 +46,10 @@ object Const {
     const val MONET_PITCH_BLACK_THEME: String = "monetPitchBlackTheme"
     const val MONET_SEED_COLOR_ENABLED: String = "monetSeedColorEnabled"
     const val MONET_SEED_COLOR: String = "monetSeedColor"
+    const val MONET_SEED_COLOR_EXTERNAL_OVERLAY: String = "monetSeedColorExternalOverlay"
+    const val MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED: String = "monetSeedColorExternalOverlayEnabled"
+    const val MONET_SEED_COLOR_EXTERNAL_OVERLAY_OWNER: String = "monetSeedColorExternalOverlayOwner"
+    const val MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS: String = "monetColorExternalOverlayTimeoutSeconds"
     const val MONET_SECONDARY_COLOR: String = "monetSecondaryColor"
     const val MONET_TERTIARY_COLOR: String = "monetTertiaryColor"
     const val MANUAL_OVERRIDE_COLORS: String = "manualOverrideColors"

@@ -52,10 +52,16 @@ object ColorUtil {
             throw Exception("No wallpaper color list found")
         }
 
+        val seedKey: String =
+            if (RPrefs.getBoolean(Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY_ENABLED))
+                Const.MONET_SEED_COLOR_EXTERNAL_OVERLAY
+            else
+                Const.MONET_SEED_COLOR
+
         return generateModifiedColors(
             style,
             RPrefs.getInt(
-                Const.MONET_SEED_COLOR,
+                seedKey,
                 wallpaperColorList[0]
             ),
             accentSaturation,
