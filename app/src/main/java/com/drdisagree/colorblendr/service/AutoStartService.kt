@@ -147,7 +147,7 @@ class AutoStartService : Service() {
             return
         }
 
-        val timeoutSeconds: Int = getInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS)
+        val timeoutSeconds: Int = getInt(MONET_COLOR_EXTERNAL_OVERLAY_TIMEOUT_SECONDS, 10)
         if (timeoutSeconds <= 0) {
             return
         }
