@@ -1,3 +1,14 @@
+# For SpMp users
+
+1. Install latest version from [releases](https://github.com/toasterofbread/ColorBlendr/releases)
+2. Go through app setup
+3. In advanced settings, enable "Allow external access" option
+4. Return to SpMp
+
+<br>
+<br>
+<br>
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/Mahmud0808/ColorBlendr/master/.github/resources/banner.png" width="100%" alt="Banner">
 
